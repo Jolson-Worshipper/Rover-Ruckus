@@ -25,27 +25,27 @@ public class Robot
 
     //Initialize all of the subsystems
     public void initializeRobot() {
-        for(int x=0;x<subList.length;x++){
-            subList[x].initialize();
+        for(Subsystem sub : subList){
+            sub.initialize();
         }
     }
     //Initialize all of the vision classes
     public void initializeVision(){
-        for(int x=0;x<visList.length;x++){
-            visList[x].initialize();
+        for(Vision vis : visList){
+            vis.initialize();
         }
     }
     //brake all of the subsystems
     public void brake(){
-        for(int x=0;x<subList.length;x++){
-            subList[x].brake();
+        for(Subsystem sub : subList){
+            sub.brake();
         }
     }
 
     //run all of the subsystems
     public void run(){
-        for(int x=0;x<subList.length;x++){
-            subList[x].run();
+        for(Subsystem sub : subList){
+            sub.run();
         }
     }
 }
