@@ -36,6 +36,11 @@ public class Lift extends Subsystem{
         liftMotor.setPower(0);
     }
 
+    //NOT FINISHED
+    public void descend(int destination){
+        liftMotor.setPower(.5);
+    }
+
     public void initialize(){
         //Does nothing
     }
@@ -73,5 +78,8 @@ public class Lift extends Subsystem{
     }
     public void resetEncoders() {
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+    public int getEncoders(){
+        return liftMotor.getCurrentPosition();
     }
 }

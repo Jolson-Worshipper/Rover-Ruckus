@@ -60,4 +60,7 @@ public class VuforiaClass extends Vision{
     public void close(){
         vuforia.close();
     }
+
+    //NOT FINISHED
+    public double getAngle(){return 0;}
 }

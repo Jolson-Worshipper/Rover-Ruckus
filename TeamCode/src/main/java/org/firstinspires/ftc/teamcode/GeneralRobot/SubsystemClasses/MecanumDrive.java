@@ -147,6 +147,22 @@ public class MecanumDrive extends Subsystem{
         backRight.setPower(powerbr);
     }
 
+    public void setDriveEncoders(double drivePower,double angle, int encoderDistance) {
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        frontLeft.setTargetPosition((int)(encoderDistance*(-1*Math.sin(angle)+Math.cos(angle))) + frontLeft.getCurrentPosition());
+        frontRight.setTargetPosition((int)(encoderDistance*(-1*Math.sin(angle)+Math.cos(angle)))+ frontRight.getCurrentPosition());
+        backLeft.setTargetPosition((int)(encoderDistance*(-1*Math.sin(angle)+Math.cos(angle))) + backLeft.getCurrentPosition());
+        backRight.setTargetPosition((int)(encoderDistance*(-1*Math.sin(angle)+Math.cos(angle))) + backRight.getCurrentPosition());
+
+        theta = angle+angleFromDriver-heading;
+        jp = drivePower;
+        drive(setFieldCentricDrivePowers());
+    }
+
     //Reset encoders
     public void resetEncoders(){
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -225,5 +241,14 @@ public class MecanumDrive extends Subsystem{
         double fr = -leftY - leftX - rightX;
         double[] drivePowers = {fl, fr, bl, br};
         return drivePowers;
+    }
+
+    //Moves to unhook from lander before orienting
+    public void moveToDelatch(){}
+
+    public boolean isBusy(){
+        if(frontLeft.isBusy()||frontRight.isBusy()||backLeft.isBusy()||backRight.isBusy())
+            return true;
+        return false;
     }
 }

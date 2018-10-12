@@ -12,13 +12,22 @@ public class Robot
 {
     //Creates an array of subsystems and vision things, and a class object for each subsystem
     public MecanumDrive mecanumDrive;
-    public Subsystem[] subList = {mecanumDrive};
-    public Vision vuforiaClass,opencvClass;
+    public Bucket bucket;
+    public Extender extender;
+    public Intake intake;
+    public Lift lift;
+    public Subsystem[] subList = {mecanumDrive,bucket,extender,intake,lift};
+    public VuforiaClass vuforiaClass;
+    public OpenCVClass opencvClass;
     public Vision[] visList = {vuforiaClass,opencvClass};
 
     //Sets up all of the needed objects, should also update the values in the list
     public Robot(HardwareMap hwmap, Gamepad gamepad, Telemetry telemetry) {
         mecanumDrive = new MecanumDrive(hwmap,gamepad,telemetry);
+        bucket = new Bucket(hwmap,gamepad,telemetry);
+        extender = new Extender(hwmap,gamepad,telemetry);
+        intake = new Intake(hwmap,gamepad,telemetry);
+        lift = new Lift(hwmap,gamepad,telemetry);
         vuforiaClass = new VuforiaClass(hwmap,telemetry);
         opencvClass = new OpenCVClass(hwmap,telemetry);
     }
