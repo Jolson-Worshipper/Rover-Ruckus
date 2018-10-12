@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.GeneralRobot.SubsystemClasses.Robot;
 import org.firstinspires.ftc.teamcode.GeneralRobot.GeneralLibrary.PIDClass;
 
-@Autonomous(name="frick!",group="Auto")
+@Autonomous(name="Preliminary Auto Test!",group="Auto")
 public class TestAuto extends LinearOpMode{
     private enum AutoStates {
         HANG_DESCEND,
@@ -31,7 +31,7 @@ public class TestAuto extends LinearOpMode{
     public final int LIFT_ENCODER_AMOUNT = 0;
     public final double TURN_TOLERANCE = .1;
     public final double ORIENT_ANGLE = 50;
-    public final double AUTO_DRIVE_POWER = .5;
+    public final double AUTO_DRIVE_POWER = .3;
     public final int MINERAL_ENCODER_SETUP = 50;
     public final int MINERAL_ENCODER_LEFT = 50;
     public final int MINERAL_ENCODER_CENTER = 50;
@@ -60,12 +60,14 @@ public class TestAuto extends LinearOpMode{
             robot.mecanumDrive.updateGyro();
             switch(autoStates){
                 case HANG_DESCEND:
-                    if(robot.lift.getEncoders()<LIFT_ENCODER_AMOUNT)
-                        robot.lift.descend(LIFT_ENCODER_AMOUNT);
-                    else
-                        robot.mecanumDrive.moveToDelatch();
-                        autoStates = AutoStates.ORIENT_ROBOT;
-                        break;
+                    robot.lift.descend(LIFT_ENCODER_AMOUNT);
+                    while(robot.lift.isBusy())
+                        idle();
+                    robot.mecanumDrive.moveToDelatch();
+                    while(robot.mecanumDrive.isBusy())
+                        idle();
+                    autoStates = AutoStates.ORIENT_ROBOT;
+                    break;
                 case ORIENT_ROBOT:
                     forwardAngle = robot.vuforiaClass.getAngle();
                     do{

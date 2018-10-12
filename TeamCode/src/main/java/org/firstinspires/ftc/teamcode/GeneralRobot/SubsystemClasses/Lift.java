@@ -82,4 +82,9 @@ public class Lift extends Subsystem{
     public int getEncoders(){
         return liftMotor.getCurrentPosition();
     }
+    public boolean isBusy(){
+        if(liftMotor.isBusy())
+            return true;
+        return false;
+    }
 }
