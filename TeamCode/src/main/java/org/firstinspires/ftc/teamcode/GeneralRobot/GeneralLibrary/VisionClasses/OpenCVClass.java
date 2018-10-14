@@ -11,6 +11,6 @@ public class OpenCVClass extends Vision{
         super(hwmap,telemetry);
     }
     public void initialize(){}
-    public String run(){return "";}
+    public void run(){}
     public void close(){}
 }

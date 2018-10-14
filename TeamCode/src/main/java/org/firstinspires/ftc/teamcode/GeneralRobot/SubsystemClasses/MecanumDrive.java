@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.GeneralRobot.GeneralLibrary.GamepadClasses.GamepadClass;
+import org.firstinspires.ftc.teamcode.GeneralRobot.GeneralLibrary.PIDClass;
 
 public class MecanumDrive extends Subsystem{
     //Creates gamepad to use debouncing
@@ -22,15 +23,18 @@ public class MecanumDrive extends Subsystem{
     //Sets up all the drivivng variables (versions of the joysticks, and field centric variables
     private double jp,jTheta,theta,fr,fl,br,bl;
     private double leftY,leftX,rightX;
+    private PIDClass driftPID;
     public double heading;
     public final double DRIVE_POWER = 1;
     public double multiplier = 2;
     public double angleFromDriver = 0;
+    public double driftThreshhold = .5;
 
     public MecanumDrive(HardwareMap hwmap, Gamepad gamepad, Telemetry telemetry) {
         super(hwmap,gamepad,telemetry);
         //Sets up the new gamepad and all of the motors
         gamepadClass = new GamepadClass(gamepad);
+        driftPID = new PIDClass(.5,0,0);
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
         frontRight = hardwareMap.dcMotor.get("frontRight");
         backLeft = hardwareMap.dcMotor.get("backLeft");
@@ -100,6 +104,27 @@ public class MecanumDrive extends Subsystem{
             angleFromDriver += heading;
         //alters the joystick values ex. squaring, cubing, etc.
         alterJoystickValues();
+        //converts joystick values to Field Centric
+        setFieldCentricValues();
+        //Drives at said powers
+        drive(setFieldCentricDrivePowers());
+    }
+
+    public void fcAntiDrift() {
+        gamepadClass.update();
+        double lastHeading = heading;
+        updateGyro();
+        //If Y is pressed, set the current forward direction to wherever the robot is facing
+        if (gamepadClass.Y.getVal())
+            angleFromDriver += heading;
+        //alters the joystick values ex. squaring, cubing, etc.
+        alterJoystickValues();
+        if(rightX==0) {
+            if (Math.abs(lastHeading - heading) > driftThreshhold) {
+                driftPID.setPIDPower(lastHeading,heading,true);
+                rightX = driftPID.getPIDPower();
+            }
+        }
         //converts joystick values to Field Centric
         setFieldCentricValues();
         //Drives at said powers

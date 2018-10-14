@@ -124,9 +124,6 @@ public class VuTest extends OpMode {
         {
             ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
-
-        telemetry.addData(">", "Press Play to start tracking");
-        telemetry.update();
     }
 
     @Override public void loop() {
