@@ -16,12 +16,12 @@ public abstract class AutoMethods extends LinearOpMode {
         CRATER_PARK,
         STOP
     }
-    private enum MineralLocation {
+    protected enum MineralLocation {
         LEFT,
         CENTER,
         RIGHT
     }
-    protected enum StartLocation {
+    public enum StartLocation {
         CRATER,
         DEPOT,
         NONE
@@ -64,15 +64,6 @@ public abstract class AutoMethods extends LinearOpMode {
         turnPID = new PIDClass(.5,0,0);
     }
 
-    protected void initLoop(){
-        if(gamepad1.a)
-            startLocation = StartLocation.CRATER;
-        else if(gamepad1.b)
-            startLocation = StartLocation.DEPOT;
-        telemetry.addData("Start Location",startLocation);
-        telemetry.update();
-    }
-
     protected void descend(){
         robot.lift.descend(LIFT_ENCODER_AMOUNT);
         while(robot.lift.isBusy())
@@ -95,7 +86,7 @@ public abstract class AutoMethods extends LinearOpMode {
         do{
             robot.mecanumDrive.updateGyro();
             //Will have to tune this part, not exactly sure what value vuforia actually gives (ex. is 0 facing straight forward?)
-            turnPID.setPIDPower(ORIENT_ANGLE-forwardAngle,robot.mecanumDrive.heading, true);
+            turnPID.setPIDPower(ORIENT_ANGLE-forwardAngle,robot.mecanumDrive.getHeading(), true);
             double[] drivePowers = {turnPID.getPIDPower(), -turnPID.getPIDPower(), turnPID.getPIDPower(), -turnPID.getPIDPower()};
             robot.mecanumDrive.drive(drivePowers);
         }while(turnPID.checkErrorLinear(TURN_TOLERANCE));
@@ -141,7 +132,7 @@ public abstract class AutoMethods extends LinearOpMode {
         do{
             robot.mecanumDrive.updateGyro();
             //Will have to tune this part, not exactly sure what value vuforia actually gives (ex. is 0 facing straight forward?)
-            turnPID.setPIDPower(forwardAngle,robot.mecanumDrive.heading, true);
+            turnPID.setPIDPower(forwardAngle,robot.mecanumDrive.getHeading(), true);
             double[] drivePowers = {turnPID.getPIDPower(), -turnPID.getPIDPower(), turnPID.getPIDPower(), -turnPID.getPIDPower()};
             robot.mecanumDrive.drive(drivePowers);
         }while(turnPID.checkErrorLinear(TURN_TOLERANCE));

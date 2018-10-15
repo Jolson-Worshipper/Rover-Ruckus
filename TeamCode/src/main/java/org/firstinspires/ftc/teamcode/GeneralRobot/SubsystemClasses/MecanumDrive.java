@@ -24,11 +24,11 @@ public class MecanumDrive extends Subsystem{
     private double jp,jTheta,theta,fr,fl,br,bl;
     private double leftY,leftX,rightX;
     private PIDClass driftPID;
-    public double heading;
-    public final double DRIVE_POWER = 1;
-    public double multiplier = 2;
-    public double angleFromDriver = 0;
-    public double driftThreshhold = .5;
+    private double heading;
+    private final double DRIVE_POWER = 1;
+    private double multiplier = 2;
+    private double angleFromDriver = 0;
+    private  double driftThreshhold = .5;
 
     public MecanumDrive(HardwareMap hwmap, Gamepad gamepad, Telemetry telemetry) {
         super(hwmap,gamepad,telemetry);
@@ -48,7 +48,7 @@ public class MecanumDrive extends Subsystem{
     }
 
     //function that takes the highest drive power and if it's over 1, tunes all of the powers to be <=1 and still proportional
-    public double[] getThreshHold(double[] powers){
+    private double[] getThreshHold(double[] powers){
         //finds the largest drivePower
         double maxPower = 0;
         for(double power : powers){
@@ -226,7 +226,7 @@ public class MecanumDrive extends Subsystem{
     public void initialize(){}
 
     //Squares/operates to affect the joystick value, if it's an even power then make sure to get the right sign
-    public void alterJoystickValues(){
+    private void alterJoystickValues(){
         if(multiplier%2 != 1 || multiplier!=1){
             rightX = Math.signum(gamepad.right_stick_x) * Math.pow(gamepad.right_stick_x, multiplier);
             leftX = Math.signum(gamepad.left_stick_x) * Math.pow(gamepad.left_stick_x, multiplier);
@@ -240,7 +240,7 @@ public class MecanumDrive extends Subsystem{
     }
 
     //sets the field centric values of the joystick based on gamepad values
-    public void setFieldCentricValues(){
+    private void setFieldCentricValues(){
         jTheta = Math.toDegrees(Math.atan2(-leftY,leftX));
         jp = Math.sqrt(leftX * leftX + leftY * leftY);
         if (jp > 1)
@@ -249,7 +249,7 @@ public class MecanumDrive extends Subsystem{
     }
 
     //returns list of drivepowers based on field centric data from setFieldCentricValues
-    public double[] setFieldCentricDrivePowers(){
+    private double[] setFieldCentricDrivePowers(){
         fl = (Math.sin(theta) + Math.cos(theta)) * jp / 2 + rightX;
         fr = (Math.sin(theta) - Math.cos(theta)) * jp / 2 - rightX;
         bl = (Math.sin(theta) - Math.cos(theta)) * jp / 2 + rightX;
@@ -259,7 +259,7 @@ public class MecanumDrive extends Subsystem{
     }
 
     //returns list of drivepowers based on robot centric values
-    public double[] setRobotCentricDrivePowers(){
+    private double[] setRobotCentricDrivePowers(){
         double bl = -leftY - leftX + rightX;
         double br = -leftY + leftX - rightX;
         double fl = -leftY + leftX + rightX;
@@ -275,5 +275,9 @@ public class MecanumDrive extends Subsystem{
         if(frontLeft.isBusy()||frontRight.isBusy()||backLeft.isBusy()||backRight.isBusy())
             return true;
         return false;
+    }
+
+    public double getHeading(){
+        return heading;
     }
 }
