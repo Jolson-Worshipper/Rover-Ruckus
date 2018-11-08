@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.GeneralRobot.GeneralLibrary.GamepadClasses
 public class Extender extends Subsystem {
     private DcMotor extend;
     private GamepadClass gamepadClass;
-    private final double EXTEND_POWER = .3;
+    private final double EXTEND_POWER = .7;
 
     public Extender(HardwareMap hwMap, Gamepad gamepad, Telemetry telem){
         super(hwMap,gamepad,telem);

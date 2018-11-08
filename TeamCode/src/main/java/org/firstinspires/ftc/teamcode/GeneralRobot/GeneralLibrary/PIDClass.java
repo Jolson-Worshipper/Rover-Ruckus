@@ -8,6 +8,7 @@ public class PIDClass {
     double integral = 0;
     double  lastError;
     double error;
+    double errorSum =0;
     double currentDrivePower;
     ElapsedTime timer;
 
@@ -15,12 +16,14 @@ public class PIDClass {
         this.KP=KP;
         this.KI=0;
         this.KD=0;
+        timer = new ElapsedTime();
     }
 
     public PIDClass(double KP, double KI, double KD){
         this.KP=KP;
         this.KI=KI;
         this.KD=KD;
+        timer = new ElapsedTime();
     }
 
 
@@ -72,10 +75,10 @@ public class PIDClass {
             if (error > 180)
                 error -= 360;
         }
+        errorSum+=error;
         double Time = timer.seconds()-lastTime;
-        integral += error * Time;
         double Derivative = (error-lastError)/Time;
-        currentDrivePower = error * KP + integral * KI + Derivative * KD;
+        currentDrivePower = error * KP + (errorSum*Time) * KI + Derivative * KD;
         lastTime = timer.seconds();
         lastError = error;
     }

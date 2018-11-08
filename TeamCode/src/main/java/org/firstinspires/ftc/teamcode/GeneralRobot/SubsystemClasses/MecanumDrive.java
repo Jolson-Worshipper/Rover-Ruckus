@@ -24,8 +24,8 @@ public class MecanumDrive extends Subsystem{
     private double jp,jTheta,theta,fr,fl,br,bl;
     private double leftY,leftX,rightX;
     private PIDClass driftPID;
-    private double heading;
-    private final double DRIVE_POWER = 1;
+    private double heading,yheading;
+    private double DRIVE_POWER = 1;
     private double multiplier = 2;
     private double angleFromDriver = 0;
     private  double driftThreshhold = .5;
@@ -93,6 +93,7 @@ public class MecanumDrive extends Subsystem{
         if (heading < 0)
             heading += 360;
         telemetry.addData("Gyro Heading",heading);
+        yheading = gyro.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX).secondAngle;
     }
 
     //Runs the teleOp code, first  updating everything
@@ -102,6 +103,8 @@ public class MecanumDrive extends Subsystem{
         //If Y is pressed, set the current forward direction to wherever the robot is facing
         if (gamepadClass.Y.getVal())
             angleFromDriver += heading;
+        if (gamepadClass.B.getVal())
+            DRIVE_POWER = .2;
         //alters the joystick values ex. squaring, cubing, etc.
         alterJoystickValues();
         //converts joystick values to Field Centric
@@ -223,7 +226,10 @@ public class MecanumDrive extends Subsystem{
     }
 
     //Initialize drivetrain
-    public void initialize(){}
+    public void initialize(){
+        resetEncoders();
+        restistOnBrake();
+    }
 
     //Squares/operates to affect the joystick value, if it's an even power then make sure to get the right sign
     private void alterJoystickValues(){
@@ -278,6 +284,11 @@ public class MecanumDrive extends Subsystem{
     }
 
     public double getHeading(){
+        updateGyro();
         return heading;
+    }
+    public double getyHeading(){
+        updateGyro();
+        return yheading;
     }
 }

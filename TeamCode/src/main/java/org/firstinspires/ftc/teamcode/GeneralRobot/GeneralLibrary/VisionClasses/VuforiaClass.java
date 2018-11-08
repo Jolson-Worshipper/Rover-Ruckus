@@ -108,7 +108,6 @@ public class VuforiaClass extends Vision{
             ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
     }
 
-
     public void run() {
         targetsRoverRuckus.activate();
         targetVisible = false;

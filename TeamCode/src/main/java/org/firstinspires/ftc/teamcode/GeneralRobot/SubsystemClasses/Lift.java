@@ -1,15 +1,18 @@
 package org.firstinspires.ftc.teamcode.GeneralRobot.SubsystemClasses;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends Subsystem{
     //Declares motors for this class
-    public DcMotor liftMotor;
+    public DcMotor liftMotor,liftMotor2;
+    public Servo hang;
     ElapsedTime timer;
 
     private final double WHEEL_RADIUS = 1/6;
@@ -18,9 +21,13 @@ public class Lift extends Subsystem{
 
     public Lift(HardwareMap hwmap, Gamepad gamepad, Telemetry telemetry) {
         super(hwmap,gamepad,telemetry);
-
+        hang = hardwareMap.servo.get("hang");
         //Creates new liftMotor on the phones/hardwaremap
         liftMotor = hardwareMap.dcMotor.get("liftMotor");
+        liftMotor2 = hardwareMap.dcMotor.get("liftMotor2");
+        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        liftMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         useEncoders();
 
         timer = new ElapsedTime();
@@ -29,11 +36,18 @@ public class Lift extends Subsystem{
     //Basic teleop method, run based on the powers of the triggers
     public void run(){
         liftMotor.setPower(gamepad.right_trigger-gamepad.left_trigger);
+        liftMotor2.setPower(gamepad.right_trigger-gamepad.left_trigger);
     }
 
     //if you call this, just brake the motors
     public void brake(){
         liftMotor.setPower(0);
+        liftMotor2.setPower(0);
+    }
+
+    public void drive(double power){
+        liftMotor.setPower(power);
+        liftMotor2.setPower(power);
     }
 
     //NOT FINISHED
