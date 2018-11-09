@@ -83,12 +83,14 @@ public class AutoMethods extends LinearOpMode {
         orientRobot();
         //strafes to then hits the mineral
         hitMineralDepot();
-        //rotates, strafes sideways, deposits team marker
-        markerOrientDepot(0);
-        SquareUp();
-        markerStrafe();
-        //drives back and parks
-        park(0);
+        if(startLocation == StartLocation.DEPOT) {
+            //rotates, strafes sideways, deposits team marker
+            markerOrientDepot(0);
+            SquareUp();
+            markerStrafe();
+            //drives back and parks
+            park(0);
+        }
         requestOpModeStop();
     }
     
@@ -119,7 +121,13 @@ public class AutoMethods extends LinearOpMode {
                 mineralLocation = MineralLocation.CENTER;
                 break;
         }
-        telemetry.addData("Initialized",mineralLocation);
+        if(gamepad1.a)
+            startLocation = StartLocation.DEPOT;
+        else if(gamepad1.b)
+            startLocation = StartLocation.CRATER;
+
+        telemetry.addData("Start Location",startLocation);
+        telemetry.addData("Mineral Location",mineralLocation);
         telemetry.update();
     }
 
