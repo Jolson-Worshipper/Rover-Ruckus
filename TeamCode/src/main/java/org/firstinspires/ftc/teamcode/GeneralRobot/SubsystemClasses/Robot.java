@@ -15,9 +15,7 @@ public class Robot
     public Extender extender;
     public Intake intake;*/
     public Lift lift;
-    public Subsystem[] subList = {mecanumDrive/*,bucket,extender,intake*/,lift};
-    public VuforiaClass vuforiaClass;
-    public Vision[] visList = {vuforiaClass};
+    public Subsystem[] subList = new Subsystem[2];
 
     //Sets up all of the needed objects, should also update the values in the list
     public Robot(HardwareMap hwmap, Gamepad gamepad, Telemetry telemetry) {
@@ -26,7 +24,8 @@ public class Robot
         extender = new Extender(hwmap,gamepad,telemetry);
         intake = new Intake(hwmap,gamepad,telemetry);*/
         lift = new Lift(hwmap,gamepad,telemetry);
-        vuforiaClass = new VuforiaClass(hwmap,telemetry);
+        subList[0] = mecanumDrive;
+        subList[1] = lift;
     }
     //Initialize all of the subsystems
     /*public void initializeRobot() {
@@ -35,7 +34,7 @@ public class Robot
         }
     }*/
     //Initialize all of the vision classes
-    public void initializeVision(){
+    /*public void initializeVision(){
         for(Vision vis : visList){
             vis.initialize();
         }
@@ -44,7 +43,7 @@ public class Robot
         for(Vision vis : visList){
             vis.close();
         }
-    }
+    }*/
     //brake all of the subsystems
     public void brake(){
         for(Subsystem sub : subList){

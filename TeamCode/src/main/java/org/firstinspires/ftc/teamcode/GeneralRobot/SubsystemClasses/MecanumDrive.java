@@ -103,8 +103,10 @@ public class MecanumDrive extends Subsystem{
         //If Y is pressed, set the current forward direction to wherever the robot is facing
         if (gamepadClass.Y.getVal())
             angleFromDriver += heading;
+        if (gamepadClass.X.getVal())
+            DRIVE_POWER = .3;
         if (gamepadClass.B.getVal())
-            DRIVE_POWER = .2;
+            DRIVE_POWER = 1;
         //alters the joystick values ex. squaring, cubing, etc.
         alterJoystickValues();
         //converts joystick values to Field Centric
@@ -159,6 +161,11 @@ public class MecanumDrive extends Subsystem{
 
     //Set the encoder distance and speed for auto
     public void setDriveEncoders(double powerfl, double powerfr, double powerbl, double powerbr, int fl, int fr, int bl, int br) {
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);

@@ -16,6 +16,6 @@ public abstract class Vision {
 
     //Most important functions are to initialize the vision, run the code, and close the vision
     public abstract void initialize();
-    public abstract void run();
+    public abstract String run();
     public abstract void close();
 }

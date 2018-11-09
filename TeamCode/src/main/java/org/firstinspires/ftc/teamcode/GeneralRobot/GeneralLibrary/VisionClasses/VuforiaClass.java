@@ -108,7 +108,7 @@ public class VuforiaClass extends Vision{
             ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
     }
 
-    public void run() {
+    public String run() {
         targetsRoverRuckus.activate();
         targetVisible = false;
         for (VuforiaTrackable trackable : allTrackables) {
@@ -128,6 +128,7 @@ public class VuforiaClass extends Vision{
             Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
             vuAngle = rotation.thirdAngle;
         }
+        return ((Double)vuAngle).toString();
     }
 
     public void close(){

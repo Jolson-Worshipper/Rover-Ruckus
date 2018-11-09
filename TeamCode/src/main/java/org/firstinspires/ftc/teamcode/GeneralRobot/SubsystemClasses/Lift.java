@@ -37,6 +37,8 @@ public class Lift extends Subsystem{
     public void run(){
         liftMotor.setPower(gamepad.right_trigger-gamepad.left_trigger);
         liftMotor2.setPower(gamepad.right_trigger-gamepad.left_trigger);
+        if(gamepad.x)
+            initialize();
     }
 
     //if you call this, just brake the motors
@@ -56,7 +58,7 @@ public class Lift extends Subsystem{
     }
 
     public void initialize(){
-        //Does nothing
+        hang.setPosition(0);
     }
 
     //Motion profiling attempt that ideally works
