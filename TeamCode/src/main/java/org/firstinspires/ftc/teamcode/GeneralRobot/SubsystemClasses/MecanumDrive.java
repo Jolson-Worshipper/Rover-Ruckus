@@ -25,8 +25,8 @@ public class MecanumDrive extends Subsystem{
     private double leftY,leftX,rightX;
     private PIDClass driftPID;
     private double heading,yheading;
-    private double DRIVE_POWER = 1;
-    private double multiplier = 2;
+    private double DRIVE_POWER = .3;
+    private double multiplier = 1;
     private double angleFromDriver = 0;
     private  double driftThreshhold = .5;
 
@@ -66,6 +66,7 @@ public class MecanumDrive extends Subsystem{
 
     //Drives all 4 motors at the set powers
     public void drive(double[] powers) {
+        useNoEncoders();
         double[] drivePowers = getThreshHold(powers);
         frontLeft.setPower(drivePowers[0]);
         frontRight.setPower(drivePowers[1]);
@@ -97,7 +98,7 @@ public class MecanumDrive extends Subsystem{
     }
 
     //Runs the teleOp code, first  updating everything
-    public void run() {
+    public void FCDrive() {
         gamepadClass.update();
         updateGyro();
         //If Y is pressed, set the current forward direction to wherever the robot is facing
@@ -136,10 +137,10 @@ public class MecanumDrive extends Subsystem{
         drive(setFieldCentricDrivePowers());
     }
 
-    public void RCDrive() {
-        //alters the joystick values ex. squaring, cubing, etc.
+    public void run() {
+        useNoEncoders();
         alterJoystickValues();
-        //Drive at derived drive powers
+        //alters the joystick values ex. squaring, cubing, etc.
         drive(setRobotCentricDrivePowers());
     }
 

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends Subsystem{
     //Declares motors for this class
-    public DcMotor liftMotor,liftMotor2;
+    public DcMotor liftMotor;
     public Servo hang;
     ElapsedTime timer;
 
@@ -24,10 +24,8 @@ public class Lift extends Subsystem{
         hang = hardwareMap.servo.get("hang");
         //Creates new liftMotor on the phones/hardwaremap
         liftMotor = hardwareMap.dcMotor.get("liftMotor");
-        liftMotor2 = hardwareMap.dcMotor.get("liftMotor2");
         liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        liftMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         useEncoders();
 
         timer = new ElapsedTime();
@@ -36,7 +34,6 @@ public class Lift extends Subsystem{
     //Basic teleop method, run based on the powers of the triggers
     public void run(){
         liftMotor.setPower(gamepad.right_trigger-gamepad.left_trigger);
-        liftMotor2.setPower(gamepad.right_trigger-gamepad.left_trigger);
         if(gamepad.x)
             initialize();
     }
@@ -44,12 +41,6 @@ public class Lift extends Subsystem{
     //if you call this, just brake the motors
     public void brake(){
         liftMotor.setPower(0);
-        liftMotor2.setPower(0);
-    }
-
-    public void drive(double power){
-        liftMotor.setPower(power);
-        liftMotor2.setPower(power);
     }
 
     //NOT FINISHED

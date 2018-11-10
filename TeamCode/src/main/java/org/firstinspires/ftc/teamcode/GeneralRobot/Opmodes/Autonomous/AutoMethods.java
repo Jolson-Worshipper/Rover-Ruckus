@@ -47,49 +47,49 @@ public class AutoMethods extends LinearOpMode {
     //Distance to go forwards to hit mineral
     protected final int ENCODER_HIT_MINERAL = 975;
     //Distance to strafe sideways to get to depot
-    protected final int MARKER_RIGHT = 1475;
-    protected final int MARKER_LEFT = 1200;
-    protected final int MARKER_CENTER = 1300;
+    protected final int MARKER_RIGHT = 1450;
+    protected final int MARKER_CENTER = 700;
+    protected final int MARKER_LEFT = 0;
     //Distance to go to square up
-    protected final int PLACE_LEFT = 800;
-    protected final int PLACE_CENTER = 600;
+    protected final int PLACE_LEFT = 600;
+    protected final int PLACE_CENTER = 400;
     protected final int PLACE_RIGHT = 400;
     //Park distance
-    protected final int PARK = 30;
+    protected final int PARK = 650;
     //Time to use encoders at the start
+    protected final long DESCEND_TIME = 10000;
     protected final double ENCODER_TIME = 2;
-    //Time to rotate
-    protected final double PID_TIME = 5;
-    //Time to descend
-    protected final long DESCEND_TIME = 15000;
-    //Time to park/get over there
+    protected final double PID_TIME = 4;
+    protected final double STRAFE_TIME = 3;
     protected final double PARK_TIME = 2;
-    //Time to bring a servo down
     protected final long SERVO_TIME = 300;
-    //TIme to strafe sideways to deposit marker
-    protected final double STRAFE_TIME = 5;
-    //Time to square up
+
     protected final double SQUARE_TIME = 3;
+    protected long motorDelay = 250;
+    protected boolean delatch = false;
 
     public void runOpMode() throws InterruptedException{
         initOnce();
         //Inits team marker+passive hang
-        while(opModeIsActive()&&!isStarted())
+        while(!isStarted() && !isStopRequested())
             initLoop();
         waitForStart();
         opencv.close();
-        //descend();
-        //brings the robot out of the park zone
-        orientRobot();
-        //strafes to then hits the mineral
-        hitMineralDepot();
-        if(startLocation == StartLocation.DEPOT) {
-            //rotates, strafes sideways, deposits team marker
-            markerOrientDepot(0);
-            SquareUp();
-            markerStrafe();
-            //drives back and parks
-            park(0);
+        if(delatch)
+            descend();
+        else {
+            //brings the robot out of the park zone
+            orientRobot();
+            //strafes to then hits the mineral
+            hitMineralDepot();
+            if (startLocation == StartLocation.DEPOT) {
+                //rotates, strafes sideways, deposits team marker
+                markerOrientDepot(0);
+                //SquareUp();
+                markerStrafe();
+                //drives back and parks
+                park(0);
+            }
         }
         requestOpModeStop();
     }
@@ -106,28 +106,39 @@ public class AutoMethods extends LinearOpMode {
         //AutoTransitioner.transitionOnStop(this, "Lift Test");
         opencv.initialize();
         opencv.start();
-        telemetry.addData("Initialized",mineralLocation);
-        telemetry.update();
     }
     protected void initLoop(){
-        switch(opencv.run()){
-            case "LEFT":
-                mineralLocation = MineralLocation.LEFT;
-                break;
-            case "RIGHT":
-                mineralLocation = MineralLocation.RIGHT;
-                break;
-            case "CENTER":
+        if(!delatch) {
+            if (gamepad1.dpad_up)
                 mineralLocation = MineralLocation.CENTER;
-                break;
+            else if (gamepad1.dpad_left)
+                mineralLocation = MineralLocation.LEFT;
+            else if (gamepad1.dpad_right)
+                mineralLocation = MineralLocation.RIGHT;
+            if (gamepad1.a)
+                startLocation = StartLocation.DEPOT;
+            else if (gamepad1.b)
+                startLocation = StartLocation.CRATER;
+            else if(gamepad1.x)
+                delatch = true;
+        }else{
+            switch(opencv.run()){
+                case "LEFT":
+                    mineralLocation = MineralLocation.LEFT;
+                    break;
+                case "RIGHT":
+                    mineralLocation = MineralLocation.RIGHT;
+                    break;
+                case "CENTER":
+                    mineralLocation = MineralLocation.CENTER;
+                    break;
+            }
+            if(gamepad1.y)
+                delatch = false;
         }
-        if(gamepad1.a)
-            startLocation = StartLocation.DEPOT;
-        else if(gamepad1.b)
-            startLocation = StartLocation.CRATER;
-
-        telemetry.addData("Start Location",startLocation);
-        telemetry.addData("Mineral Location",mineralLocation);
+        telemetry.addData("Start Location", startLocation);
+        telemetry.addData("Mineral Location", mineralLocation);
+        telemetry.addData("Delatch", delatch);
         telemetry.update();
     }
 
@@ -135,14 +146,25 @@ public class AutoMethods extends LinearOpMode {
         telemetry.addData("Descending","Yeet");
         telemetry.update();
         //Reverse the lift for 1/5 a second, removes the passive hang, then brakes to slowly descend
-        robot.lift.drive(.5);
+        robot.lift.liftMotor.setPower(-.5);
         sleep(200);
         robot.lift.hang.setPosition(0);
-        sleep(500);
-        robot.lift.drive(0);
-        //Maybe use gyro here?
-        sleep(DESCEND_TIME*1000);
-        //Needs to include delatching
+        sleep(SERVO_TIME);
+        robot.lift.liftMotor.setPower(-.2);
+        sleep(DESCEND_TIME);
+        robot.lift.liftMotor.setPower(.5);
+        sleep(1000);
+        Strafe(400);
+        robot.mecanumDrive.setDriveEncoders(AUTO_DRIVE_POWER, AUTO_DRIVE_POWER, AUTO_DRIVE_POWER, AUTO_DRIVE_POWER,
+                250,250,250,250);
+        timer.reset();
+        while(robot.mecanumDrive.isBusy()&&timer.seconds()<ENCODER_TIME&&opModeIsActive()) {
+            telemetry.addData("Orienting",robot.mecanumDrive.frontLeft.getCurrentPosition());
+            telemetry.update();
+        }
+        robot.lift.liftMotor.setPower(-1);
+        sleep(1000);
+        Strafe(-400);
     }
 
     protected void orientRobot(){
@@ -152,10 +174,11 @@ public class AutoMethods extends LinearOpMode {
         robot.mecanumDrive.setDriveEncoders(AUTO_DRIVE_POWER, AUTO_DRIVE_POWER, AUTO_DRIVE_POWER, AUTO_DRIVE_POWER,
                 MINERAL_ENCODER_SETUP, MINERAL_ENCODER_SETUP, MINERAL_ENCODER_SETUP, MINERAL_ENCODER_SETUP);
         timer.reset();
-        while(robot.mecanumDrive.isBusy()&&timer.seconds()<2&&opModeIsActive()) {
+        while(robot.mecanumDrive.isBusy()&&timer.seconds()<ENCODER_TIME&&opModeIsActive()) {
             telemetry.addData("Orienting",robot.mecanumDrive.frontLeft.getCurrentPosition());
             telemetry.update();
         }
+        sleep(motorDelay);
     }
 
     protected void hitMineralDepot(){
@@ -180,6 +203,7 @@ public class AutoMethods extends LinearOpMode {
                 }
                 break;
         }
+        sleep(motorDelay);
         //Hits mineral
         robot.mecanumDrive.setDriveEncoders(AUTO_DRIVE_POWER, AUTO_DRIVE_POWER, AUTO_DRIVE_POWER, AUTO_DRIVE_POWER,
                 ENCODER_HIT_MINERAL, ENCODER_HIT_MINERAL, ENCODER_HIT_MINERAL, ENCODER_HIT_MINERAL);
@@ -188,23 +212,26 @@ public class AutoMethods extends LinearOpMode {
             telemetry.addData("Hitting",robot.mecanumDrive.frontLeft.getCurrentPosition());
             telemetry.update();
         }
+        sleep(motorDelay);
     }
 
     //protected void hitMineralCrater(){}
 
     protected void markerOrientDepot(long delay){
         //Turns to 45 degrees
-        robot.mecanumDrive.useNoEncoders();
-        timer.reset();
-        do{
-            //Will have to tune this part, not exactly sure what value vuforia actually gives (ex. is 0 facing straight forward?)
-            turnPID.setPIDPower(-TURN_ANGLE,robot.mecanumDrive.getHeading(), true);
-            double[] dp = {-turnPID.getPIDPower()*PID_SPEED, turnPID.getPIDPower()*PID_SPEED, -turnPID.getPIDPower()*PID_SPEED, turnPID.getPIDPower()*PID_SPEED};
-            robot.mecanumDrive.drive(dp);
-            telemetry.addData("Turning",robot.mecanumDrive.getHeading());
-            telemetry.update();
-        }while(turnPID.checkErrorLinear(TURN_TOLERANCE)&&opModeIsActive()&&timer.seconds()<PID_TIME);
-        sleep(delay);
+            robot.mecanumDrive.useNoEncoders();
+            timer.reset();
+            do {
+                //Will have to tune this part, not exactly sure what value vuforia actually gives (ex. is 0 facing straight forward?)
+                turnPID.setPIDPower(-TURN_ANGLE, robot.mecanumDrive.getHeading(), true);
+                double[] dp = {-turnPID.getPIDPower() * PID_SPEED, turnPID.getPIDPower() * PID_SPEED, -turnPID.getPIDPower() * PID_SPEED, turnPID.getPIDPower() * PID_SPEED};
+                robot.mecanumDrive.drive(dp);
+                telemetry.addData("Turning", robot.mecanumDrive.getHeading());
+                telemetry.update();
+            }
+            while (turnPID.checkErrorLinear(TURN_TOLERANCE) && opModeIsActive() && timer.seconds() < PID_TIME);
+            sleep(delay);
+            sleep(motorDelay);
     }
 
     protected void SquareUp(){
@@ -226,14 +253,23 @@ public class AutoMethods extends LinearOpMode {
         switch(mineralLocation) {
             case LEFT:
                 Strafe(MARKER_LEFT);
+                robot.mecanumDrive.setDriveEncoders(-AUTO_DRIVE_POWER,-AUTO_DRIVE_POWER,-AUTO_DRIVE_POWER,-AUTO_DRIVE_POWER,
+                        PLACE_LEFT,PLACE_LEFT,PLACE_LEFT,PLACE_LEFT);
+                timer.reset();
+                while(robot.mecanumDrive.isBusy()&&timer.seconds()<STRAFE_TIME&&opModeIsActive()){ }
                 break;
             case RIGHT:
                 Strafe(MARKER_RIGHT);
                 break;
             case CENTER:
                 Strafe(MARKER_CENTER);
+                robot.mecanumDrive.setDriveEncoders(-AUTO_DRIVE_POWER,-AUTO_DRIVE_POWER,-AUTO_DRIVE_POWER,-AUTO_DRIVE_POWER,
+                        PLACE_CENTER,PLACE_CENTER,PLACE_CENTER,PLACE_CENTER);
+                timer.reset();
+                while(robot.mecanumDrive.isBusy()&&timer.seconds()<ENCODER_TIME&&opModeIsActive()){ }
                 break;
         }
+        sleep(motorDelay);
         //Deposits team marker
         flip.setPosition(.35);
         sleep(SERVO_TIME);
@@ -277,7 +313,7 @@ public class AutoMethods extends LinearOpMode {
         robot.mecanumDrive.setDriveEncoders(-AUTO_DRIVE_POWER,AUTO_DRIVE_POWER,AUTO_DRIVE_POWER,-AUTO_DRIVE_POWER,
                 -distance,distance,distance,-distance);
         timer.reset();
-        while(robot.mecanumDrive.isBusy()&&timer.seconds()<STRAFE_TIME&&opModeIsActive()){
+        while(robot.mecanumDrive.isBusy()&&timer.seconds()<ENCODER_TIME&&opModeIsActive()){
             telemetry.addData("Strafing",robot.mecanumDrive.frontLeft.getCurrentPosition());
             telemetry.update();
         }

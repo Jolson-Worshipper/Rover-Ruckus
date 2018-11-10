@@ -22,7 +22,13 @@ public class FC_Tele extends OpMode{
     public void start(){}
 
     public void loop(){
-        robotClass.run();
+        robotClass.lift.run();
+        double bl = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
+        double br = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
+        double fl = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+        double fr = -gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
+        double[] drivePowers = {fl, fr, bl, br};
+        robotClass.mecanumDrive.drive(drivePowers);
         if(gamepad1.x)
             flip.setPosition(1);
     }
