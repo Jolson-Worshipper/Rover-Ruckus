@@ -8,6 +8,7 @@ public abstract class Vision {
     //Creates instances of the hardwaremap and telemetry to be used in the other vision classes
     protected HardwareMap hardwaremap;
     protected Telemetry telemetry;
+    protected enum MineralLocation {LEFT,RIGHT,CENTER,UNKNOWN};
 
     public Vision(HardwareMap hardwaremap,Telemetry telemetry){
         this.hardwaremap = hardwaremap;
@@ -16,6 +17,8 @@ public abstract class Vision {
 
     //Most important functions are to initialize the vision, run the code, and close the vision
     public abstract void initialize();
-    public abstract String run();
+    public abstract void start();
+    public abstract MineralLocation findGold();
+    public abstract MineralLocation checkGold();
     public abstract void close();
 }

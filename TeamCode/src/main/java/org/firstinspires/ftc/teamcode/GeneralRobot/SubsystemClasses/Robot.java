@@ -4,8 +4,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.GeneralRobot.GeneralLibrary.VisionClasses.Vision;
-import org.firstinspires.ftc.teamcode.GeneralRobot.GeneralLibrary.VisionClasses.VuforiaClass;
 
 public class Robot
 {
@@ -28,11 +26,11 @@ public class Robot
         subList[1] = lift;
     }
     //Initialize all of the subsystems
-    /*public void initializeRobot() {
+    public void initializeRobot() {
         for(Subsystem sub : subList){
             sub.initialize();
         }
-    }*/
+    }
     //Initialize all of the vision classes
     /*public void initializeVision(){
         for(Vision vis : visList){

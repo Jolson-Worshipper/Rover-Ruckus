@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.GeneralRobot.SubsystemClasses;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -29,6 +30,8 @@ public class MecanumDrive extends Subsystem{
     private double multiplier = 1;
     private double angleFromDriver = 0;
     private  double driftThreshhold = .5;
+    private PIDClass encoderPIDfl,encoderPIDfr,encoderPIDbl,encoderPIDbr;
+    private double encoderPIDThresh = 5;
 
     public MecanumDrive(HardwareMap hwmap, Gamepad gamepad, Telemetry telemetry) {
         super(hwmap,gamepad,telemetry);
@@ -41,9 +44,13 @@ public class MecanumDrive extends Subsystem{
         backRight = hardwareMap.dcMotor.get("backRight");
 
         //Reverses 2 motors so it drives normally
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
 
+        encoderPIDfl = new PIDClass(.5,0,0);
+        encoderPIDfr = new PIDClass(.5,0,0);
+        encoderPIDbl = new PIDClass(.5,0,0);
+        encoderPIDbr = new PIDClass(.5,0,0);
         InitializeGyro();
     }
 
@@ -66,12 +73,16 @@ public class MecanumDrive extends Subsystem{
 
     //Drives all 4 motors at the set powers
     public void drive(double[] powers) {
-        useNoEncoders();
         double[] drivePowers = getThreshHold(powers);
         frontLeft.setPower(drivePowers[0]);
         frontRight.setPower(drivePowers[1]);
         backLeft.setPower(drivePowers[2]);
         backRight.setPower(drivePowers[3]);
+    }
+
+    public void drive(double fl,double fr,double bl,double br) {
+        double[] drivePowers = {fl,fr,bl,br};
+        drive(drivePowers);
     }
 
     //Initializes the gyro with the values that we want
@@ -241,7 +252,7 @@ public class MecanumDrive extends Subsystem{
 
     //Squares/operates to affect the joystick value, if it's an even power then make sure to get the right sign
     private void alterJoystickValues(){
-        if(multiplier%2 != 1 || multiplier!=1){
+        if(multiplier%2 != 1 && multiplier!=1){
             rightX = Math.signum(gamepad.right_stick_x) * Math.pow(gamepad.right_stick_x, multiplier);
             leftX = Math.signum(gamepad.left_stick_x) * Math.pow(gamepad.left_stick_x, multiplier);
             leftY = Math.signum(gamepad.left_stick_y) * Math.pow(gamepad.left_stick_y, multiplier);
@@ -298,5 +309,22 @@ public class MecanumDrive extends Subsystem{
     public double getyHeading(){
         updateGyro();
         return yheading;
+    }
+    public void setDRIVE_POWER(double drive_power){
+        DRIVE_POWER = drive_power;
+    }
+
+    public boolean runToPosition(int positionfl,int positionfr,int positionbl,int positionbr){
+        encoderPIDfl.setPIDPower(positionfl,frontLeft.getCurrentPosition(),false);
+        encoderPIDfr.setPIDPower(positionfr,frontLeft.getCurrentPosition(),false);
+        encoderPIDbl.setPIDPower(positionbl,frontLeft.getCurrentPosition(),false);
+        encoderPIDbr.setPIDPower(positionbr,frontLeft.getCurrentPosition(),false);
+        double[] dp = {encoderPIDfl.getPIDPower(),encoderPIDfr.getPIDPower(),encoderPIDbl.getPIDPower(),encoderPIDbr.getPIDPower()};
+        drive(dp);
+        if(!encoderPIDfl.checkErrorLinear(encoderPIDThresh)&&encoderPIDfr.checkErrorLinear(encoderPIDThresh)
+                &&encoderPIDbl.checkErrorLinear(encoderPIDThresh)&&encoderPIDbr.checkErrorLinear(encoderPIDThresh))
+            return false;
+        else
+            return true;
     }
 }

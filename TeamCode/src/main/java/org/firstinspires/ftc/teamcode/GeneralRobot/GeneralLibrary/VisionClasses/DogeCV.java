@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Size;
 
-public class OpenCVClass extends Vision{
+public class DogeCV extends Vision{
     private GoldDetector detector;
 
-    public OpenCVClass(HardwareMap hwMap, Telemetry telem){
+    public DogeCV(HardwareMap hwMap, Telemetry telem){
         super(hwMap,telem);
     }
     public void initialize(){
@@ -23,7 +23,7 @@ public class OpenCVClass extends Vision{
 
         detector.downscale = 0.4; // How much to downscale the input frames
 
-        detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
+        detector.areaScoringMethod = com.disnodeteam.dogecv.DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
         //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
         detector.maxAreaScorer.weight = 0.005;
         detector.ratioScorer.weight = 5;
